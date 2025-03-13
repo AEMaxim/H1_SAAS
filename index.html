@@ -1,0 +1,834 @@
+<html lang="en-US">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Weather App">
+    <title>Weather App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&amp;display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-size: 18px;
+            overflow: hidden;
+        }
+
+        #main-container {
+            display: flex;
+            width: 200vw;
+            height: 100vh;
+            transition: transform 0.5s ease;
+            overflow: hidden;
+        }
+
+        body {
+            background: radial-gradient(circle, rgba(245, 136, 1, 1) 0%, rgba(243, 113, 78, 1) 55%, #f7b331 100%);
+            font-family: "Raleway", sans-serif;
+            font-weight: bold;
+            font-variant-numeric: lining-nums;
+            -webkit-font-smoothing: subpixel-antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-size: 18px;
+        }
+
+        .log {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: -20px;
+        }
+
+        form#weatherForm {
+            width: 680px;
+            background: #e1ba9b;
+            padding: 26px;
+            border-radius: 26px;
+            position: relative;
+        }
+
+        .log-date {
+            background: #845400;
+            padding: 18px;
+            position: relative;
+            border-radius: 70px;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: -10px;
+        }
+
+        .log-date:before {
+            position: absolute;
+            content: '';
+            height: 90px;
+            width: 90px;
+            border-radius: 50px;
+            left: 16px;
+            top: 18px;
+            background: #e2a370 url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cg id='SVGRepo_bgCarrier' stroke-width='0'%3E%3C/g%3E%3Cg id='SVGRepo_tracerCarrier' stroke-linecap='round' stroke-linejoin='round'%3E%3C/g%3E%3Cg id='SVGRepo_iconCarrier'%3E%3Cpath d='M7.75 2.5C7.75 2.08579 7.41421 1.75 7 1.75C6.58579 1.75 6.25 2.08579 6.25 2.5V4.07926C4.81067 4.19451 3.86577 4.47737 3.17157 5.17157C2.47737 5.86577 2.19451 6.81067 2.07926 8.25H21.9207C21.8055 6.81067 21.5226 5.86577 20.8284 5.17157C20.1342 4.47737 19.1893 4.19451 17.75 4.07926V2.5C17.75 2.08579 17.4142 1.75 17 1.75C16.5858 1.75 16.25 2.08579 16.25 2.5V4.0129C15.5847 4 14.839 4 14 4H10C9.16097 4 8.41527 4 7.75 4.0129V2.5Z' fill='%23845406'%3E%3C/path%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M22 12V14C22 17.7712 22 19.6569 20.8284 20.8284C19.6569 22 17.7712 22 14 22H10C6.22876 22 4.34315 22 3.17157 20.8284C2 19.6569 2 17.7712 2 14V12C2 11.161 2 10.4153 2.0129 9.75H21.9871C22 10.4153 22 11.161 22 12ZM16.5 18C17.3284 18 18 17.3284 18 16.5C18 15.6716 17.3284 15 16.5 15C15.6716 15 15 15.6716 15 16.5C15 17.3284 15.6716 18 16.5 18Z' fill='%23845406'%3E%3C/path%3E%3C/g%3E%3C/svg%3E") no-repeat center center;
+        }
+
+        input::placeholder {
+            color: #84540069;
+        }
+
+        form#weatherForm label {
+            margin-left: 110px;
+            font-size: 40px;
+            color: #e2a370;
+            width: 160px;
+        }
+
+        input#date {
+            background: #e2a370;
+            border: unset;
+            border-radius: 60px;
+            color: #845400;
+            font-size: 20px;
+            padding: 12px;
+            font-weight: bold;
+            font-family: "Raleway", sans-serif;
+        }
+
+
+        .log-location {
+            background: #845400;
+            padding: 18px;
+            position: relative;
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: -10px;
+        }
+
+        .log-location:before {
+            position: absolute;
+            content: '';
+            height: 90px;
+            width: 90px;
+            border-radius: 50px;
+            left: 16px;
+            top: 18px;
+            background: #e2a370 url("data:image/svg+xml,%3Csvg fill='%23845400' height='60' viewBox='0 0 29 29' width='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M14.5 2C18.4306 2 21.625 5.29333 21.625 9.36667C21.625 14.8886 14.5 23.0476 14.5 23.0476C14.5 23.0476 7.375 14.8886 7.375 9.36667C7.375 5.29333 10.5694 2 14.5 2ZM14.5 6.95238C13.8701 6.95238 13.266 7.21326 12.8206 7.67764C12.3752 8.14202 12.125 8.77185 12.125 9.42857C12.125 10.0853 12.3752 10.7151 12.8206 11.1795C13.266 11.6439 13.8701 11.9048 14.5 11.9048C15.1299 11.9048 15.734 11.6439 16.1794 11.1795C16.6248 10.7151 16.875 10.0853 16.875 9.42857C16.875 8.77185 16.6248 8.14202 16.1794 7.67764C15.734 7.21326 15.1299 6.95238 14.5 6.95238ZM24 23.0476C24 25.7838 19.7488 28 14.5 28C9.25125 28 5 25.7838 5 23.0476C5 21.4505 6.44875 20.0267 8.69313 19.1229L9.45312 20.2495C8.17062 20.8067 7.375 21.5743 7.375 22.4286C7.375 24.1371 10.5694 25.5238 14.5 25.5238C18.4306 25.5238 21.625 24.1371 21.625 22.4286C21.625 21.5743 20.8294 20.8067 19.5469 20.2495L20.3069 19.1229C22.5512 20.0267 24 21.4505 24 23.0476Z' fill='%23845400'%3E%3C/path%3E%3C/svg%3E") no-repeat center center;
+        }
+
+        input#location {
+            background: #e2a370;
+            border: unset;
+            border-radius: 60px 6px 6px 60px;
+            color: #845400;
+            font-size: 20px;
+            padding: 12px;
+            width: 180px;
+            font-weight: bold;
+            font-family: "Raleway", sans-serif;
+            height: 90px;
+        }
+
+        button#geolocationBtn {
+            background: #e2a370;
+            border: unset;
+            border-radius: 6px 60px 60px 6px;
+            color: #845400;
+            font-size: 20px;
+            padding: 12px;
+            /* width: 200px; */
+            font-weight: bold;
+            font-family: "Raleway", sans-serif;
+            height: 90px;
+        }
+
+        .log-name {
+            background: #845400;
+            padding: 18px;
+            position: relative;
+            border-radius: 50px;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .log-name:before {
+            position: absolute;
+            content: '';
+            height: 90px;
+            width: 90px;
+            border-radius: 50px;
+            left: 16px;
+            top: 18px;
+            background: #e2a370 url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cg id='SVGRepo_bgCarrier' stroke-width='0'%3E%3C/g%3E%3Cg id='SVGRepo_tracerCarrier' stroke-linecap='round' stroke-linejoin='round'%3E%3C/g%3E%3Cg id='SVGRepo_iconCarrier'%3E%3Cpath d='M9.15316 5.40838C10.4198 3.13613 11.0531 2 12 2C12.9469 2 13.5802 3.13612 14.8468 5.40837L15.1745 5.99623C15.5345 6.64193 15.7144 6.96479 15.9951 7.17781C16.2757 7.39083 16.6251 7.4699 17.3241 7.62805L17.9605 7.77203C20.4201 8.32856 21.65 8.60682 21.9426 9.54773C22.2352 10.4886 21.3968 11.4691 19.7199 13.4299L19.2861 13.9372C18.8096 14.4944 18.5713 14.773 18.4641 15.1177C18.357 15.4624 18.393 15.8341 18.465 16.5776L18.5306 17.2544C18.7841 19.8706 18.9109 21.1787 18.1449 21.7602C17.3788 22.3417 16.2273 21.8115 13.9243 20.7512L13.3285 20.4768C12.6741 20.1755 12.3469 20.0248 12 20.0248C11.6531 20.0248 11.3259 20.1755 10.6715 20.4768L10.0757 20.7512C7.77268 21.8115 6.62118 22.3417 5.85515 21.7602C5.08912 21.1787 5.21588 19.8706 5.4694 17.2544L5.53498 16.5776C5.60703 15.8341 5.64305 15.4624 5.53586 15.1177C5.42868 14.773 5.19043 14.4944 4.71392 13.9372L4.2801 13.4299C2.60325 11.4691 1.76482 10.4886 2.05742 9.54773C2.35002 8.60682 3.57986 8.32856 6.03954 7.77203L6.67589 7.62805C7.37485 7.4699 7.72433 7.39083 8.00494 7.17781C8.28555 6.96479 8.46553 6.64194 8.82547 5.99623L9.15316 5.40838Z' fill='%23845406'%3E%3C/path%3E%3C/g%3E%3C/svg%3E") no-repeat center center;
+        }
+
+        input#requester_name {
+            background: #e2a370;
+            border: unset;
+            border-radius: 60px;
+            color: #845400;
+            font-size: 20px;
+            padding: 12px;
+            font-weight: bold;
+            font-family: "Raleway", sans-serif;
+            width: 220px;
+        }
+
+        input[type="submit"] {
+            position: absolute;
+            right: 30px;
+            bottom: -34px;
+            background: #e2a370;
+            border: unset;
+            border-radius: 60px;
+            color: #845400;
+            font-size: 28px;
+            padding: 16px 28px;
+            font-weight: bold;
+            border: 4px solid #e2a370;
+            font-family: "Raleway", sans-serif;
+            transition: .2s;
+        }
+
+        input[type="submit"]:hover {
+            border: 4px solid #845400;
+            transition: .2s;
+            transform: skew(-2deg, -2deg);
+            cursor: pointer;
+        }
+
+        .main-content {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: -20px;
+        }
+
+        .forecast {
+            display: grid;
+            grid-template-areas:
+        "a a b"
+        "c d d";
+            gap: 40px 50px;
+            color: #845400;
+        }
+
+        .clock {
+            width: 32vw;
+            margin-right: 110px;
+            max-width: 610px;
+            margin-left: -30px;
+        }
+
+
+        .forecast__main {
+            grid-area: a;
+            background: #e1ba9b;
+            border-radius: 30px;
+            padding: 35px;
+            max-height: 225px;
+            max-width: 525px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .hum-slider__line {
+            width: 83%;
+            height: 6px;
+            background: #845400;
+            position: absolute;
+            top: 45%;
+            border-radius: 8px;
+            z-index: 1;
+        }
+
+        .hum-slider__main {
+            display: inline-block;
+            background: #e2a370;
+            padding: 14px 24px;
+            width: 60%;
+            border-radius: 25px;
+            position: relative;
+            z-index: 2;
+            font-size: 1rem;
+        }
+
+        .hum-slider {
+            position: relative;
+        }
+
+        .hum-slider:after {
+            position: absolute;
+            content: '';
+            height: 49px;
+            width: 49px;
+            border-radius: 50px;
+            right: 0px;
+            background: #e2a370 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32' fill='%23845406'%3E%3Cpath d='M23.476 13.9925L16.847 3.43652C16.7508 3.30153 16.6238 3.19148 16.4764 3.11555C16.3291 3.03962 16.1657 3 16 3C15.8343 3 15.6709 3.03962 15.5236 3.11555C15.3762 3.19148 15.2492 3.30153 15.153 3.43652L8.494 14.0425C7.56889 15.5348 7.05357 17.2446 7 18.9995C7 21.3865 7.94821 23.6757 9.63604 25.3635C11.3239 27.0513 13.6131 27.9995 16 27.9995C18.3869 27.9995 20.6761 27.0513 22.364 25.3635C24.0518 23.6757 25 21.3865 25 18.9995C24.9425 17.2253 24.4167 15.4979 23.476 13.9925ZM16 25.9995C14.1442 25.9971 12.3651 25.2589 11.0529 23.9466C9.74064 22.6344 9.00238 20.8553 9 18.9995C9.05315 17.6011 9.47321 16.2413 10.218 15.0565L11.153 13.5665L21.227 23.6405C20.5727 24.3818 19.7683 24.9755 18.8672 25.3824C17.9661 25.7893 16.9887 25.999 16 25.9995Z' fill='%23845406'/%3E%3C/svg%3E") no-repeat center center;
+        }
+
+        .values-blobs {
+            display: flex;
+            margin-top: 30px;
+            font-size: 0.9rem;
+        }
+
+        .values-blobs__rain, .values-blobs__uv, .values-blobs__feel {
+            display: flex;
+            justify-content: center;
+            gap: 9px;
+            background: #e2a370;
+            padding: 14px;
+            flex-grow: 1;
+            border-radius: 20px;
+        }
+
+
+        .forecast__current {
+            transition: .4s;
+            grid-area: b;
+            background: #e1ba9b;
+            display: flex;
+            width: 190px;
+            height: 230px;
+            border-radius: 85px;
+            transform: rotate(45deg);
+            position: relative;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .forecast__current .icon {
+            margin-left: -40px;
+        }
+
+        .current-value {
+            transform: rotate(-45deg);
+            font-size: 3.444rem;
+            margin-left: 40px;
+        }
+
+
+        .forecast__details {
+            grid-area: c;
+            display: flex;
+            flex-wrap: wrap;
+            width: 300px;
+            gap: 6px;
+        }
+
+        .details {
+            width: 141px;
+            height: 141px;
+            background: #e1ba9b;
+        }
+
+        .details-clouds {
+            border-radius: 80px 10px 10px 80px;
+        }
+
+        .details-visib {
+            border-radius: 10px 10px 80px 80px;
+        }
+
+        .details-wind {
+            border-radius: 10px 80px 80px 10px;
+        }
+
+        .details-pressure {
+            border-radius: 80px 80px 10px 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .details-clouds__blob {
+            text-align: right;
+            background: #e2a370;
+            margin: 6px;
+            border-radius: 68px 4px 4px 11px;
+            font-size: 1rem;
+            word-break: break-word;
+            padding: 4px 4px 0px 4px;
+        }
+
+        .details-visib__blob {
+            text-align: right;
+            background: #e2a370;
+            margin: 6px;
+            border-radius: 8px;
+            font-size: 1rem;
+            word-break: break-word;
+            padding: 4px 4px 0px 4px;
+        }
+
+        .details-wind__blob {
+            height: calc(100% - 12px);
+            height: -webkit-fill-available;
+            width: fit-content;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: #e2a370;
+            margin: 6px;
+            border-radius: 8px;
+            font-size: 1rem;
+            word-break: break-word;
+            padding: 0px 8px 4px 4px;
+        }
+
+        .details-pressure__blob {
+            text-align: right;
+            background: #e2a370;
+            margin: 6px;
+            border-radius: 8px;
+            font-size: 1rem;
+            word-break: break-word;
+            padding: 4px 4px 2px 4px;
+        }
+
+        .details__value {
+            font-size: 1.9rem;
+            margin-block-start: 2px;
+        }
+
+        .details__measurements {
+            font-size: 0.9rem;
+            margin-block-start: -2px;
+        }
+
+        .details-pressure__blob .details__value {
+            margin-block-start: 0;
+            margin-block-end: 2px;
+        }
+
+
+        .forecast__brief {
+            grid-area: d;
+            margin-top: 35px;
+            position: relative;
+            width: 444px;
+        }
+
+        .brief-info {
+            position: absolute;
+            right: 0;
+            background: #e2a370;
+            padding: 9px 0px 150px 0px;
+            margin-top: -32px;
+            border-radius: 55px;
+            z-index: 0;
+            width: 270px;
+            font-size: 0.778rem;
+            text-align: center;
+        }
+
+        .brief-main {
+            background: #e1ba9b;
+            border-radius: 50px;
+            position: relative;
+        }
+
+        .brief-icon {
+            width: 41px;
+            height: 41px;
+            background: #E2A38D url("data:image/svg+xml,%3Csvg class='icon' xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 33 33' fill='none'%3E%3Cpath d='M16.5 20.6248C17.6458 20.6248 18.6198 20.2238 19.4219 19.4217C20.224 18.6196 20.625 17.6457 20.625 16.4998C20.625 15.354 20.224 14.38 19.4219 13.5779C18.6198 12.7759 17.6458 12.3748 16.5 12.3748C15.3542 12.3748 14.3802 12.7759 13.5781 13.5779C12.776 14.38 12.375 15.354 12.375 16.4998C12.375 17.6457 12.776 18.6196 13.5781 19.4217C14.3802 20.2238 15.3542 20.6248 16.5 20.6248ZM16.5 23.3748C14.5979 23.3748 12.9766 22.7045 11.6359 21.3639C10.2953 20.0233 9.625 18.4019 9.625 16.4998C9.625 14.5977 10.2953 12.9764 11.6359 11.6358C12.9766 10.2951 14.5979 9.62482 16.5 9.62482C18.4021 9.62482 20.0234 10.2951 21.3641 11.6358C22.7047 12.9764 23.375 14.5977 23.375 16.4998C23.375 18.4019 22.7047 20.0233 21.3641 21.3639C20.0234 22.7045 18.4021 23.3748 16.5 23.3748ZM6.875 17.8748H1.375V15.1248H6.875V17.8748ZM31.625 17.8748H26.125V15.1248H31.625V17.8748ZM15.125 6.87482V1.37482H17.875V6.87482H15.125ZM15.125 31.6248V26.1248H17.875V31.6248H15.125ZM8.8 10.6561L5.32812 7.32169L7.2875 5.29357L10.5875 8.73107L8.8 10.6561ZM25.7125 27.7061L22.3781 24.2342L24.2 22.3436L27.6719 25.6779L25.7125 27.7061ZM22.3438 8.79982L25.6781 5.32794L27.7062 7.28732L24.2687 10.5873L22.3438 8.79982ZM5.29375 25.7123L8.76562 22.3779L10.6562 24.1998L7.32188 27.6717L5.29375 25.7123Z' fill='%23845400'/%3E%3C/svg%3E") no-repeat center center;
+            border-radius: 50px;
+            position: absolute;
+            top: 0px;
+            margin-top: -23px;
+            margin-left: 43px;
+            transition: .4s;
+        }
+
+        .brief-icon.brief-icon--active {
+            background: #845406 url("data:image/svg+xml,%3Csvg class='icon' xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 33 33' fill='none'%3E%3Cpath d='M16.5 20.6248C17.6458 20.6248 18.6198 20.2238 19.4219 19.4217C20.224 18.6196 20.625 17.6457 20.625 16.4998C20.625 15.354 20.224 14.38 19.4219 13.5779C18.6198 12.7759 17.6458 12.3748 16.5 12.3748C15.3542 12.3748 14.3802 12.7759 13.5781 13.5779C12.776 14.38 12.375 15.354 12.375 16.4998C12.375 17.6457 12.776 18.6196 13.5781 19.4217C14.3802 20.2238 15.3542 20.6248 16.5 20.6248ZM16.5 23.3748C14.5979 23.3748 12.9766 22.7045 11.6359 21.3639C10.2953 20.0233 9.625 18.4019 9.625 16.4998C9.625 14.5977 10.2953 12.9764 11.6359 11.6358C12.9766 10.2951 14.5979 9.62482 16.5 9.62482C18.4021 9.62482 20.0234 10.2951 21.3641 11.6358C22.7047 12.9764 23.375 14.5977 23.375 16.4998C23.375 18.4019 22.7047 20.0233 21.3641 21.3639C20.0234 22.7045 18.4021 23.3748 16.5 23.3748ZM6.875 17.8748H1.375V15.1248H6.875V17.8748ZM31.625 17.8748H26.125V15.1248H31.625V17.8748ZM15.125 6.87482V1.37482H17.875V6.87482H15.125ZM15.125 31.6248V26.1248H17.875V31.6248H15.125ZM8.8 10.6561L5.32812 7.32169L7.2875 5.29357L10.5875 8.73107L8.8 10.6561ZM25.7125 27.7061L22.3781 24.2342L24.2 22.3436L27.6719 25.6779L25.7125 27.7061ZM22.3438 8.79982L25.6781 5.32794L27.7062 7.28732L24.2687 10.5873L22.3438 8.79982ZM5.29375 25.7123L8.76562 22.3779L10.6562 24.1998L7.32188 27.6717L5.29375 25.7123Z' fill='%23e1ba9b'/%3E%3C/svg%3E") no-repeat center center;
+        }
+
+        .brief-icon:not(.brief-icon--active):hover {
+            background: #E2A37B url("data: image/svg+xml,%3Csvg class='icon' xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 33 33' fill='none'%3E%3Cpath d='M16.5 20.6248C17.6458 20.6248 18.6198 20.2238 19.4219 19.4217C20.224 18.6196 20.625 17.6457 20.625 16.4998C20.625 15.354 20.224 14.38 19.4219 13.5779C18.6198 12.7759 17.6458 12.3748 16.5 12.3748C15.3542 12.3748 14.3802 12.7759 13.5781 13.5779C12.776 14.38 12.375 15.354 12.375 16.4998C12.375 17.6457 12.776 18.6196 13.5781 19.4217C14.3802 20.2238 15.3542 20.6248 16.5 20.6248ZM16.5 23.3748C14.5979 23.3748 12.9766 22.7045 11.6359 21.3639C10.2953 20.0233 9.625 18.4019 9.625 16.4998C9.625 14.5977 10.2953 12.9764 11.6359 11.6358C12.9766 10.2951 14.5979 9.62482 16.5 9.62482C18.4021 9.62482 20.0234 10.2951 21.3641 11.6358C22.7047 12.9764 23.375 14.5977 23.375 16.4998C23.375 18.4019 22.7047 20.0233 21.3641 21.3639C20.0234 22.7045 18.4021 23.3748 16.5 23.3748ZM6.875 17.8748H1.375V15.1248H6.875V17.8748ZM31.625 17.8748H26.125V15.1248H31.625V17.8748ZM15.125 6.87482V1.37482H17.875V6.87482H15.125ZM15.125 31.6248V26.1248H17.875V31.6248H15.125ZM8.8 10.6561L5.32812 7.32169L7.2875 5.29357L10.5875 8.73107L8.8 10.6561ZM25.7125 27.7061L22.3781 24.2342L24.2 22.3436L27.6719 25.6779L25.7125 27.7061ZM22.3438 8.79982L25.6781 5.32794L27.7062 7.28732L24.2687 10.5873L22.3438 8.79982ZM5.29375 25.7123L8.76562 22.3779L10.6562 24.1998L7.32188 27.6717L5.29375 25.7123Z' fill='%23845400'/%3E%3C/svg%3E") no-repeat center center;
+            background: #845406 url("data:image/svg+xml,%3Csvg class='icon' xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 33 33' fill='none'%3E%3Cpath d='M16.5 20.6248C17.6458 20.6248 18.6198 20.2238 19.4219 19.4217C20.224 18.6196 20.625 17.6457 20.625 16.4998C20.625 15.354 20.224 14.38 19.4219 13.5779C18.6198 12.7759 17.6458 12.3748 16.5 12.3748C15.3542 12.3748 14.3802 12.7759 13.5781 13.5779C12.776 14.38 12.375 15.354 12.375 16.4998C12.375 17.6457 12.776 18.6196 13.5781 19.4217C14.3802 20.2238 15.3542 20.6248 16.5 20.6248ZM16.5 23.3748C14.5979 23.3748 12.9766 22.7045 11.6359 21.3639C10.2953 20.0233 9.625 18.4019 9.625 16.4998C9.625 14.5977 10.2953 12.9764 11.6359 11.6358C12.9766 10.2951 14.5979 9.62482 16.5 9.62482C18.4021 9.62482 20.0234 10.2951 21.3641 11.6358C22.7047 12.9764 23.375 14.5977 23.375 16.4998C23.375 18.4019 22.7047 20.0233 21.3641 21.3639C20.0234 22.7045 18.4021 23.3748 16.5 23.3748ZM6.875 17.8748H1.375V15.1248H6.875V17.8748ZM31.625 17.8748H26.125V15.1248H31.625V17.8748ZM15.125 6.87482V1.37482H17.875V6.87482H15.125ZM15.125 31.6248V26.1248H17.875V31.6248H15.125ZM8.8 10.6561L5.32812 7.32169L7.2875 5.29357L10.5875 8.73107L8.8 10.6561ZM25.7125 27.7061L22.3781 24.2342L24.2 22.3436L27.6719 25.6779L25.7125 27.7061ZM22.3438 8.79982L25.6781 5.32794L27.7062 7.28732L24.2687 10.5873L22.3438 8.79982ZM5.29375 25.7123L8.76562 22.3779L10.6562 24.1998L7.32188 27.6717L5.29375 25.7123Z' fill='%23e1ba9b'/%3E%3C/svg%3E") no-repeat center center;
+        }
+
+        .mainicon-two {
+            margin-left: 90px;
+        }
+
+        .brief-text {
+            padding: 0 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .recommendation-activity {
+            font-size: 1rem;
+            margin-block-end: 4px;
+            height: 105px;
+        }
+
+        .recommendation-health {
+            font-size: 1rem;
+            margin-block-end: 4px;
+            height: 105px;
+            transition: .4s;
+            margin-top: -105px;
+        }
+
+        .recommendation-activity,
+        .recommendation-health {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease;
+        }
+
+        .recommendation-activity.active,
+        .recommendation-health.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .recommendation-header {
+            font-size: 1.222rem;
+            margin-block-start: -6px;
+            margin-block-end: 10px;
+        }
+
+        .brief-blob {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: #e2a370;
+            padding: 18px 42px;
+            border-radius: 55px;
+            font-size: 1.5rem;
+            margin-right: 29px;
+            margin-bottom: -28px;
+        }
+
+
+        @media screen and (max-width: 1500px) {
+            .clock {
+                width: 22vw;
+                margin-right: 60px;
+                margin-left: 0;
+            }
+        }
+
+        @media screen and (max-width: 1200px) and (max-height: 1200px) {
+            .clock {
+                display: none;
+            }
+        }
+
+        @media screen and (max-width: 840px) {
+            html {
+                font-size: 14px;
+            }
+
+            .main-content {
+                flex-direction: column-reverse;
+                gap: 4vh;
+                margin-top: 10px;
+                /*! width: 100%; */
+                /*! height: 100%; */
+                margin: unset;
+                padding: unset;
+            }
+
+            .forecast {
+                grid-template-areas:
+        "d d d" "b c c" "a a a";
+                gap: 20px;
+                justify-items: center;
+                padding: 14px;
+            }
+
+            .forecast__main {
+                max-width: unset;
+                padding: 15px;
+                max-width: 400px;
+            }
+
+            .forecast__current {
+                height: unset;
+                width: unset;
+                transform: rotate(0deg);
+                padding: 14px;
+            }
+
+            .forecast__brief {
+                min-height: 220px;
+                max-width: 400px;
+            }
+
+            .details {
+                width: 111px;
+                height: 111px;
+            }
+
+            .recommendation-header {
+                margin-block-start: 36px;
+            }
+
+            .forecast__details {
+                width: 228px;
+                justify-content: center;
+            }
+
+            .brief-text {
+                max-height: 180px;
+            }
+
+            .brief-info {
+                width: 200px;
+            }
+
+            .values-blobs {
+                margin-top: 15px;
+            }
+
+            .current-value {
+                transform: rotate(0);
+                margin-left: unset;
+            }
+
+            .forecast__current .icon {
+                margin-left: unset;
+            }
+
+        }
+
+
+    </style>
+</head>
+<body id="main-container">
+<div class="log">
+    <form id="weatherForm">
+        <div class="log-date">
+            <label for="date">Chose a date</label>
+            <input type="date" id="date" name="date" required="">
+        </div>
+        <br>
+        <div class="log-location">
+            <label for="location">And a location</label>
+            <div>
+                <input type="text" id="location" name="location" placeholder="just enter it!">
+                <button type="button" id="geolocationBtn">auto</button>
+            </div>
+        </div>
+        <br>
+        <div class="log-name">
+            <label for="requester_name">Your Name?</label>
+            <input type="text" id="requester_name" name="requester_name" placeholder="how's it?" required="">
+        </div>
+        <br>
+        <input type="submit" value="click here!">
+    </form>
+</div>
+
+<div id="results">Results will appear here.</div>
+
+<script>
+    function slide() {
+        document.getElementById('main-container').style.transform = 'translateX(-100vw)';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('date').value = new Date().toISOString().split('T')[0];
+    });
+
+    document.getElementById('geolocationBtn').addEventListener('click', () => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    const lat = position.coords.latitude.toFixed(4);
+                    const lon = position.coords.longitude.toFixed(4);
+                    document.getElementById('location').value = `${lat},${lon}`;
+                }
+            );
+        } else {
+            alert('Geolocation is not supported by your browser.');
+        }
+    });
+
+    document.getElementById('weatherForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const date = document.getElementById('date').value;
+        const location = document.getElementById('location').value;
+        const requester_name = document.getElementById('requester_name').value;
+
+        if (!location) {
+            alert('Please enter a location or use your current location.');
+            return;
+        }
+
+        const data = {
+            token: "###",
+            location: location,
+            date: date,
+            requester_name: requester_name
+        };
+
+        fetch('/content/api/v1/weather', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then(result => {
+                const day = result.weather.days[0];
+                document.getElementById('results').innerHTML = `
+                        <main class="main-content">
+    <section class="clock">
+        <svg fill="none" height="100%" viewBox="0 0 461 461" width="100%" xmlns="http://www.w3.org/2000/svg">
+            <path class="bgLightTint" clip-rule="evenodd"
+                  d="M93.6379 63.9405C89.7543 78.4344 78.4333 89.7554 63.9394 93.639L56.4989 95.6327C34.0934 101.636 20.7969 124.666 26.8005 147.072L28.7201 154.236C32.6038 168.73 28.46 184.195 17.8497 194.805L12.3015 200.353C-4.1005 216.755 -4.10051 243.348 12.3015 259.75L17.9236 265.372C28.5338 275.983 32.6776 291.447 28.794 305.941L26.8004 313.382C20.7968 335.787 34.0933 358.817 56.4989 364.821L63.9395 366.815C78.4334 370.698 89.7544 382.019 93.638 396.513L95.6322 403.956C101.636 426.361 124.666 439.658 147.071 433.654L154.513 431.66C169.007 427.777 184.472 431.92 195.082 442.531L200.353 447.802C216.755 464.204 243.348 464.204 259.75 447.802L265.097 442.455C275.707 431.845 291.172 427.701 305.666 431.585L313.383 433.653C335.788 439.656 358.818 426.36 364.822 403.954L366.815 396.515C370.699 382.021 382.02 370.7 396.514 366.816L403.955 364.822C426.361 358.819 439.657 335.789 433.654 313.383L431.586 305.665C427.702 291.172 431.846 275.707 442.456 265.096L447.802 259.75C464.204 243.348 464.204 216.755 447.802 200.353L442.53 195.081C431.92 184.471 427.776 169.006 431.66 154.512L433.654 147.071C439.657 124.665 426.361 101.635 403.955 95.6312L396.514 93.6373C382.02 89.7537 370.699 78.4327 366.815 63.9389L364.822 56.4994C358.818 34.0938 335.788 20.7974 313.383 26.8009L305.942 28.7946C291.448 32.6782 275.983 28.5345 265.373 17.9242L259.75 12.3015C243.348 -4.10051 216.755 -4.1005 200.353 12.3015L194.806 17.8491C184.196 28.4593 168.731 32.6031 154.237 28.7195L147.071 26.7995C124.666 20.7959 101.636 34.0924 95.6322 56.498L93.6379 63.9405Z"
+                  fill="#e1ba9b" fill-rule="evenodd"></path>
+            <line id="hour-hand" x1="230.5" y1="230.5" x2="230.5" y2="150" stroke="#e2a370" stroke-linecap="round"
+                  stroke-width="20" transform="rotate(239, 230.5, 230.5)"></line>
+            <line id="minute-hand" x1="230.5" y1="230.5" x2="230.5" y2="100" stroke="#845400" stroke-width="20"
+                  stroke-linecap="round" transform="rotate(348, 230.5, 230.5)"></line>
+        </svg>
+    </section>
+
+    <section class="forecast">
+        <div class="forecast__main">
+            <div class="hum-slider">
+                <div class="hum-slider__main">Humidity: ${day.humidity}%</div>
+                <div class="hum-slider__line"></div>
+            </div>
+            <div class="values-blobs">
+                <div class="values-blobs__rain">
+                    <svg width="31" height="31" viewBox="0 -2 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M9.15316 5.40838C10.4198 3.13613 11.0531 2 12 2C12.9469 2 13.5802 3.13612 14.8468 5.40837L15.1745 5.99623C15.5345 6.64193 15.7144 6.96479 15.9951 7.17781C16.2757 7.39083 16.6251 7.4699 17.3241 7.62805L17.9605 7.77203C20.4201 8.32856 21.65 8.60682 21.9426 9.54773C22.2352 10.4886 21.3968 11.4691 19.7199 13.4299L19.2861 13.9372C18.8096 14.4944 18.5713 14.773 18.4641 15.1177C18.357 15.4624 18.393 15.8341 18.465 16.5776L18.5306 17.2544C18.7841 19.8706 18.9109 21.1787 18.1449 21.7602C17.3788 22.3417 16.2273 21.8115 13.9243 20.7512L13.3285 20.4768C12.6741 20.1755 12.3469 20.0248 12 20.0248C11.6531 20.0248 11.3259 20.1755 10.6715 20.4768L10.0757 20.7512C7.77268 21.8115 6.62118 22.3417 5.85515 21.7602C5.08912 21.1787 5.21588 19.8706 5.4694 17.2544L5.53498 16.5776C5.60703 15.8341 5.64305 15.4624 5.53586 15.1177C5.42868 14.773 5.19043 14.4944 4.71392 13.9372L4.2801 13.4299C2.60325 11.4691 1.76482 10.4886 2.05742 9.54773C2.35002 8.60682 3.57986 8.32856 6.03954 7.77203L6.67589 7.62805C7.37485 7.4699 7.72433 7.39083 8.00494 7.17781C8.28555 6.96479 8.46553 6.64194 8.82547 5.99623L9.15316 5.40838Z" fill="#845406"></path> </g></svg>
+                    <div>UV Index: <br>${day.uvindex}</div>
+                </div>
+                <div class="values-blobs__uv">
+                    <svg width="31" height="31" viewBox="0 -2 16 16" xmlns="http://www.w3.org/2000/svg" fill="#845406" class="bi bi-clouds-fill"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M11.473 9a4.5 4.5 0 0 0-8.72-.99A3 3 0 0 0 3 14h8.5a2.5 2.5 0 1 0-.027-5z"></path> <path d="M14.544 9.772a3.506 3.506 0 0 0-2.225-1.676 5.502 5.502 0 0 0-6.337-4.002 4.002 4.002 0 0 1 7.392.91 2.5 2.5 0 0 1 1.17 4.769z"></path> </g></svg>
+                    <div>Rain Chance: <br>${day.precipprob}%</div>
+                </div>
+                <div class="values-blobs__feel">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="33" height="33" viewBox="0 -3 26 26" fill="none">
+                        <path d="M8 10.255V5C8 3.93913 8.42143 2.92172 9.17157 2.17157C9.92172 1.42143 10.9391 1 12 1C13.0609 1 14.0783 1.42143 14.8284 2.17157C15.5786 2.92172 16 3.93913 16 5V10.255C17.223 11.1066 18.1423 12.3262 18.6241 13.7365C19.1059 15.1467 19.125 16.6739 18.6788 18.0958C18.2325 19.5176 17.3441 20.76 16.1429 21.642C14.9416 22.524 13.4903 22.9996 12 22.9996C10.5097 22.9996 9.05837 22.524 7.85714 21.642C6.6559 20.76 5.7675 19.5176 5.32123 18.0958C4.87496 16.6739 4.89412 15.1467 5.37592 13.7365C5.85772 12.3262 6.77702 11.1066 8 10.255ZM8 16C8 17.0609 8.42143 18.0783 9.17157 18.8284C9.92172 19.5786 10.9391 20 12 20C13.0609 20 14.0783 19.5786 14.8284 18.8284C15.5786 18.0783 16 17.0609 16 16H8Z" fill="#845400"></path>
+                    </svg>
+                    <div>Feels <br>${day.feelslike}°C</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="forecast__current">
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="67" height="67" viewBox="0 0 33 33" fill="none">
+                <path d="M16.5 20.6248C17.6458 20.6248 18.6198 20.2238 19.4219 19.4217C20.224 18.6196 20.625 17.6457 20.625 16.4998C20.625 15.354 20.224 14.38 19.4219 13.5779C18.6198 12.7759 17.6458 12.3748 16.5 12.3748C15.3542 12.3748 14.3802 12.7759 13.5781 13.5779C12.776 14.38 12.375 15.354 12.375 16.4998C12.375 17.6457 12.776 18.6196 13.5781 19.4217C14.3802 20.2238 15.3542 20.6248 16.5 20.6248ZM16.5 23.3748C14.5979 23.3748 12.9766 22.7045 11.6359 21.3639C10.2953 20.0233 9.625 18.4019 9.625 16.4998C9.625 14.5977 10.2953 12.9764 11.6359 11.6358C12.9766 10.2951 14.5979 9.62482 16.5 9.62482C18.4021 9.62482 20.0234 10.2951 21.3641 11.6358C22.7047 12.9764 23.375 14.5977 23.375 16.4998C23.375 18.4019 22.7047 20.0233 21.3641 21.3639C20.0234 22.7045 18.4021 23.3748 16.5 23.3748ZM6.875 17.8748H1.375V15.1248H6.875V17.8748ZM31.625 17.8748H26.125V15.1248H31.625V17.8748ZM15.125 6.87482V1.37482H17.875V6.87482H15.125ZM15.125 31.6248V26.1248H17.875V31.6248H15.125ZM8.8 10.6561L5.32812 7.32169L7.2875 5.29357L10.5875 8.73107L8.8 10.6561ZM25.7125 27.7061L22.3781 24.2342L24.2 22.3436L27.6719 25.6779L25.7125 27.7061ZM22.3438 8.79982L25.6781 5.32794L27.7062 7.28732L24.2687 10.5873L22.3438 8.79982ZM5.29375 25.7123L8.76562 22.3779L10.6562 24.1998L7.32188 27.6717L5.29375 25.7123Z"
+                      fill="#845400"></path>
+            </svg>
+            <div class="current-value"> ${day.temp}°</div>
+        </div>
+
+        <div class="forecast__details">
+            <div class="details details-clouds">
+                <div class="details-clouds__blob">Cloud <br> Cover: <br>
+                    <div class="details__value">${day.cloudcover}%</div>
+                </div>
+            </div>
+            <div class="details details-visib">
+                <div class="details-visib__blob">Visibility: <br>
+                    <div class="details__value">${day.visibility}km</div>
+                </div>
+            </div>
+            <div class="details details-wind">
+                <div class="details-wind__blob">
+                    <div class="details__value">${day.windspeedmean}
+                        <div class="details__measurements">km/h</div>
+                    </div>
+                    <div>Wind<br> Speed:</div>
+                </div>
+            </div>
+            <div class="details details-pressure">
+                <div class="details-pressure__blob">
+                    <div class="details__value">${day.pressure}</div>
+                    Pressure: <br></div>
+            </div>
+        </div>
+
+        <div class="forecast__brief"><span class="brief-info">${result.location}. ${result.date}</span>
+            <div class="brief-main">
+                <div class="brief-icon brief-icon--active"></div>
+                <div class="brief-icon mainicon-two"></div>
+
+
+                <div class="brief-text"><h1 class="recommendation-header">It’s a brief for you, ${result.requester_name}!</h1><span
+                        class="recommendation-activity">${result.sports_recommendation.sports_recommendation.activity_recommendation}</span>
+                    <span class="recommendation-health">${result.sports_recommendation.sports_recommendation.health_safety}</span></div>
+                <span class="brief-blob">Hey there!</span>
+            </div>
+        </div>
+    </section>
+</main>
+                `;
+                slide();
+
+                function updateClock() {
+                    const now = new Date();
+                    const hours = now.getHours() % 12;
+                    const minutes = now.getMinutes();
+
+                    const hourAngle = (hours * 30) + (minutes * 0.5);
+                    const minuteAngle = minutes * 6;
+
+                    document.getElementById('hour-hand').setAttribute('transform', `rotate(${hourAngle}, 230.5, 230.5)`);
+                    document.getElementById('minute-hand').setAttribute('transform', `rotate(${minuteAngle}, 230.5, 230.5)`);
+                }
+
+                setInterval(updateClock, 1000);
+                updateClock();
+
+                const briefIcons = document.querySelectorAll('.brief-icon');
+                const activityText = document.querySelector('.recommendation-activity');
+                const healthText = document.querySelector('.recommendation-health');
+
+                let currentIndex = 0;
+
+                function updateRecommendation(index) {
+                    briefIcons.forEach(i => i.classList.remove('brief-icon--active'));
+                    briefIcons[index].classList.add('brief-icon--active');
+
+                    if (index === 0) {
+                        activityText.classList.add('active');
+                        healthText.classList.remove('active');
+                    } else {
+                        activityText.classList.remove('active');
+                        healthText.classList.add('active');
+                    }
+                }
+
+                activityText.classList.add('active');
+
+                briefIcons.forEach((icon, index) => {
+                    icon.addEventListener('click', function () {
+                        currentIndex = index;
+                        updateRecommendation(index);
+                    });
+                });
+
+                setInterval(() => {
+                    currentIndex = (currentIndex + 1) % briefIcons.length;
+                    updateRecommendation(currentIndex);
+                }, 10000);
+            })
+            .catch(error => {
+                document.getElementById('results').innerText = 'Error: ' + error;
+            });
+    });
+</script>
+</body>
+</html>
